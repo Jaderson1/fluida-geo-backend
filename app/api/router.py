@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import attractions
+from app.api.routes import places
 
 api_router = APIRouter(prefix="/api")
-api_router.include_router(attractions.router)
+api_router.include_router(places.router)
