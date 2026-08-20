@@ -4,8 +4,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 
 
-class Attraction(Base):
-    __tablename__ = "attractions"
+class Place(Base):
+    __tablename__ = "places"
 
     # String, not autoincrement: matches the slug ids the frontend already
     # uses as React keys and MapLibre feature ids (e.g. "br-cataratas").
