@@ -1,7 +1,7 @@
-"""Loads the same 10 records currently hardcoded in
-frontend/src/data/attractions.ts. Source of truth stays the TS file until
-the frontend is switched to fetch from the API; re-run this after editing
-that file to keep the two in sync. Idempotent (upsert by id).
+"""Small, stable dev seed of 10 real places — not a sync of the frontend's
+now much larger local dataset (~200 places; that stays local-only for
+now, imported via scripts/import_places.py instead — see report).
+Idempotent (upsert by id).
 
 Usage: uv run python -m app.seed
 """
@@ -9,12 +9,10 @@ Usage: uv run python -m app.seed
 from sqlalchemy.dialects.postgresql import insert
 
 from app.db.base import Base
-from app.db.models.attraction import Attraction
+from app.db.models.place import Place
 from app.db.session import SessionLocal, engine
 
-# lat/lon below are geometry.coordinates[1]/[0] from attractions.ts (GeoJSON
-# order is [lon, lat]).
-ATTRACTIONS: list[dict] = [
+PLACES: list[dict] = [
     {
         "id": "br-cataratas",
         "name": "Cataratas do Iguaçu (lado brasileiro)",
@@ -120,10 +118,10 @@ ATTRACTIONS: list[dict] = [
 
 def seed(session_factory=SessionLocal) -> None:
     with session_factory() as session:
-        stmt = insert(Attraction).values(ATTRACTIONS)
+        stmt = insert(Place).values(PLACES)
         stmt = stmt.on_conflict_do_update(
             index_elements=["id"],
-            set_={col: stmt.excluded[col] for col in ATTRACTIONS[0] if col != "id"},
+            set_={col: stmt.excluded[col] for col in PLACES[0] if col != "id"},
         )
         session.execute(stmt)
         session.commit()
@@ -132,4 +130,4 @@ def seed(session_factory=SessionLocal) -> None:
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
     seed()
-    print(f"Seeded {len(ATTRACTIONS)} attractions.")
+    print(f"Seeded {len(PLACES)} places.")
