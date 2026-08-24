@@ -7,7 +7,6 @@ Backend do Fluida Geo, responsável por fornecer os lugares da região trinacion
 - FastAPI
 - SQLAlchemy
 - PostgreSQL
-- Pydantic
 - psycopg
 - pytest
 - uv
