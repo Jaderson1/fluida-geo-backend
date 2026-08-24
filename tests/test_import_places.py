@@ -88,6 +88,22 @@ def test_import_is_idempotent(tmp_path, test_session_factory, cleanup_test_place
         assert len(rows) == 1
 
 
+def test_import_stores_optional_media_fields(tmp_path, test_session_factory, cleanup_test_places):
+    feature = make_feature("test-import-media")
+    feature["properties"]["image_url"] = "https://example.com/photo.jpg"
+    feature["properties"]["website"] = "https://example.com"
+    feature["properties"]["address"] = "Av. Teste, 123"
+    path = write_geojson(tmp_path, [feature])
+
+    import_places(path, session_factory=test_session_factory)
+
+    with test_session_factory() as session:
+        row = session.get(Place, "test-import-media")
+        assert row.image_url == "https://example.com/photo.jpg"
+        assert row.website == "https://example.com"
+        assert row.address == "Av. Teste, 123"
+
+
 @pytest.mark.parametrize(
     "payload",
     [

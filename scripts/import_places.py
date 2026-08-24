@@ -9,6 +9,7 @@ instead of leaving some rows loaded and some not.
 """
 
 import json
+import logging
 import sys
 from pathlib import Path
 
@@ -21,9 +22,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sqlalchemy.dialects.postgresql import insert
 
-from app.db.base import Base
+from app.core.logging import setup_logging
 from app.db.models.place import Place
-from app.db.session import SessionLocal, engine
+from app.db.session import SessionLocal
+
+logger = logging.getLogger("fluida_geo.import_places")
 
 VALID_CATEGORIES = {
     "nature",
@@ -76,10 +79,12 @@ def _validate_feature(feature: object, index: int) -> dict:
         REGION_BOUNDS["min_lon"] <= longitude <= REGION_BOUNDS["max_lon"]
         and REGION_BOUNDS["min_lat"] <= latitude <= REGION_BOUNDS["max_lat"]
     ):
-        print(
-            f"Warning: {label} ({properties.get('id')}) is outside the expected region "
-            f"(lon={longitude}, lat={latitude}) — check for a possible [lat, lon] swap.",
-            file=sys.stderr,
+        logger.warning(
+            "%s (%s) is outside the expected region (lon=%s, lat=%s) — check for a possible [lat, lon] swap.",
+            label,
+            properties.get("id"),
+            longitude,
+            latitude,
         )
 
     place_id = properties.get("id")
@@ -111,6 +116,9 @@ def _validate_feature(feature: object, index: int) -> dict:
         "description": properties.get("description") or "",
         "longitude": float(longitude),
         "latitude": float(latitude),
+        "image_url": properties.get("image_url"),
+        "website": properties.get("website"),
+        "address": properties.get("address"),
     }
 
 
@@ -157,14 +165,14 @@ def main() -> None:
         print(f"File not found: {path}", file=sys.stderr)
         raise SystemExit(1)
 
-    Base.metadata.create_all(engine)
+    setup_logging()
     try:
         count = import_places(path)
     except PlaceValidationError as error:
-        print(f"Import failed: {error}", file=sys.stderr)
+        logger.error("Import failed: %s", error)
         raise SystemExit(1) from error
 
-    print(f"Imported {count} places from {path}.")
+    logger.info("Imported %d places from %s", count, path)
 
 
 if __name__ == "__main__":
