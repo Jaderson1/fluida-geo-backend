@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -7,11 +9,14 @@ from app.services import places as places_service
 
 router = APIRouter(prefix="/places", tags=["places"])
 
+CountryParam = Literal["BR", "PY", "AR"]
+CategoryParam = Literal["nature", "culture", "gastronomy", "shopping", "landmark", "hotel", "entertainment"]
+
 
 @router.get("", response_model=PlaceFeatureCollection)
 def list_places(
-    country: str | None = None,
-    category: str | None = None,
+    country: CountryParam | None = None,
+    category: CategoryParam | None = None,
     city: str | None = None,
     session: Session = Depends(get_session),
 ) -> PlaceFeatureCollection:

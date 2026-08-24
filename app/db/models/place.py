@@ -17,3 +17,6 @@ class Place(Base):
     description: Mapped[str] = mapped_column(String, nullable=False)
     latitude: Mapped[float] = mapped_column(Float, nullable=False)
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
+    image_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    website: Mapped[str | None] = mapped_column(String, nullable=True)
+    address: Mapped[str | None] = mapped_column(String, nullable=True)

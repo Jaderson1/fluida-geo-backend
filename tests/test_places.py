@@ -64,3 +64,12 @@ def test_health_still_works(client) -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_optional_media_fields_default_to_null(client) -> None:
+    response = client.get("/api/places/py-saltos-monday")
+
+    properties = response.json()["properties"]
+    assert properties["image_url"] is None
+    assert properties["website"] is None
+    assert properties["address"] is None

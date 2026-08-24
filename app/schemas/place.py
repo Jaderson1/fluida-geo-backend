@@ -13,6 +13,9 @@ class PlaceProperties(BaseModel):
     city: str
     category: str
     description: str
+    image_url: str | None = None
+    website: str | None = None
+    address: str | None = None
 
 
 class PointGeometry(BaseModel):
@@ -37,6 +40,9 @@ class PlaceFeature(BaseModel):
                 city=place.city,
                 category=place.category,
                 description=place.description,
+                image_url=place.image_url,
+                website=place.website,
+                address=place.address,
             ),
         )
 
