@@ -8,9 +8,8 @@ Usage: uv run python -m app.seed
 
 from sqlalchemy.dialects.postgresql import insert
 
-from app.db.base import Base
 from app.db.models.place import Place
-from app.db.session import SessionLocal, engine
+from app.db.session import SessionLocal
 
 PLACES: list[dict] = [
     {
@@ -128,6 +127,10 @@ def seed(session_factory=SessionLocal) -> None:
 
 
 if __name__ == "__main__":
-    Base.metadata.create_all(engine)
+    import logging
+
+    from app.core.logging import setup_logging
+
+    setup_logging()
     seed()
-    print(f"Seeded {len(PLACES)} places.")
+    logging.getLogger("fluida_geo.seed").info("Seeded %d places", len(PLACES))
